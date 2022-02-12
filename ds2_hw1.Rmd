@@ -1,9 +1,43 @@
 ---
 title: "ds2_hw1"
-author: "Roxy Zhang"
+author: "Roxy Zhang (rz2570)"
 date: "2/12/2022"
 output: github_document
 ---
+
+## Setup and import data
+
+```{r set up, message = FALSE}
+library(tidyverse)
+library(caret)
+
+set.seed(2)
+```
+
+```{r import data}
+train_df = 
+  read_csv("data/housing_training.csv") %>% 
+  janitor::clean_names() %>% 
+  drop_na()
+
+test_df = 
+  read_csv("data/housing_test.csv") %>% 
+  janitor::clean_names() %>% 
+  drop_na()
+
+dim(train_df)
+table(sapply(train_df, class)) %>% 
+  knitr::kable()
+
+dim(test_df)
+table(sapply(test_df, class)) %>% 
+  knitr::kable()
+```
+
+
+## Linear model
+
+Fit a linear model using least squares on the training data. Is there any potential disadvantage of this model?
 
 ```{r}
 
