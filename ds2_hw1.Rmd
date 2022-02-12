@@ -1,0 +1,11 @@
+---
+title: "ds2_hw1"
+author: "Roxy Zhang"
+date: "2/12/2022"
+output: github_document
+---
+
+```{r}
+
+```
+
