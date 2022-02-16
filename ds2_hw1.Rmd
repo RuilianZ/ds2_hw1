@@ -1,20 +1,21 @@
 ---
-title: "ds2_hw1"
+title: "Home Work 2 for Data Science II"
 author: "Roxy Zhang (rz2570)"
 date: "2/12/2022"
 output: github_document
 ---
 
-## Setup and import data
+### Setup and import data
 
-```{r set up, message = FALSE}
+```{r, message = FALSE}
 library(tidyverse)
 library(caret)
+library(corrplot)
 
 
 ```
 
-```{r import data}
+```{r, message = FALSE}
 train_df = 
   read_csv("data/housing_training.csv") %>% 
   janitor::clean_names() %>% 
@@ -34,8 +35,36 @@ table(sapply(test_df, class)) %>%
   knitr::kable()
 ```
 
+* We want to predict outcome variable `sale_price` by selecting predictors from `r ncol(train_df)` variables, among which there are 4 categorical variables and 22 continuous variables.   
+* There are `r nrow(train_df)` data in training data and `r nrow(test_df)` in test data.  
 
-## Linear model
+
+### Data preparation
+
+For the convenience of fitting models, we want to create vectors and matrices in advance:
+
+```{r}
+train_x <- model.matrix(sale_price ~ ., train_df)[ ,-1]
+train_y <- train_df$sale_price
+test_x <- model.matrix(sale_price ~ ., test_df)[ , -1]
+test_y <- test_df$sale_price
+```
+
+In linear regression, correlation among variables can cause large variance and make interpretation harder.  
+So we want to have a look and the potential correlation among predictors:
+
+```{r}
+corrplot(
+  cor(train_x), 
+  type = "full",
+  tl.cex = .5, 
+  tl.col = "darkblue")
+```
+
+
+
+
+## Least Squares
 
 Fit a linear model using least squares on the training data. Is there any potential disadvantage of this model?
 
