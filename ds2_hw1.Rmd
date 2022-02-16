@@ -27,15 +27,15 @@ test_df =
   na.omit()
 
 dim(train_df)
-table(sapply(train_df, class)) %>% 
+table(sapply(train_df[ , -1], class)) %>% 
   knitr::kable()
 
 dim(test_df)
-table(sapply(test_df, class)) %>% 
+table(sapply(test_df[ , -1], class)) %>% 
   knitr::kable()
 ```
 
-* We want to predict outcome variable `sale_price` by selecting predictors from `r ncol(train_df)` variables, among which there are 4 categorical variables and 22 continuous variables.   
+* We want to predict outcome variable `sale_price` by selecting predictors from `r ncol(train_df)` variables, among which there are 4 categorical variables and 21 continuous variables.   
 * There are `r nrow(train_df)` data in training data and `r nrow(test_df)` in test data.  
 
 
@@ -61,8 +61,7 @@ corrplot(
   tl.col = "darkblue")
 ```
 
-
-
+* From the plot above, 
 
 ## Least Squares
 
