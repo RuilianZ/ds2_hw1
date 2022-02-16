@@ -79,6 +79,7 @@ predictors:
 ``` r
 corrplot(
   cor(train_x), 
+  method = "circle",
   type = "full",
   tl.cex = .5, 
   tl.col = "darkblue")
@@ -130,13 +131,136 @@ any potential disadvantage of this model?
 ``` r
 set.seed(2570)
 
-# Fit linear model using train() from caret
+# Specify resampling method
+ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 5)
+
+# Fit a linear model using caret
 lm_fit <- train(sale_price ~ .,
                 data = train_df,
                 method = "lm",
                 preProcess = c("center", "scale"),
-                trControl = trainControl(method = "cv", number = 10))
+                trControl = ctrl)
 ```
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
 
     ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
     ## may be misleading
@@ -222,7 +346,7 @@ round(lm_fit$finalModel$coefficients, 3) %>%
 mean(lm_fit$resample$RMSE)
 ```
 
-    ## [1] 23050.57
+    ## [1] 23004.66
 
 ### Make prediction
 
@@ -242,8 +366,10 @@ RMSE(lm_predict, test_df$sale_price)
     ## [1] 21149.18
 
 **Potential Disadvantage:**  
+\* The model contains too many predictors, which is hard for
+interpretation.  
 \* As seen above, there are correlations among predictors, which may
-lead to: 1. higher variance / RMSE 2. less prediction accuracy 3.
+lead to: 1. higher variance and RMSE 2. less prediction accuracy 3.
 difficulty for interpretation  
 \* Due to the nature of its modeling method, Least Squares is sensitive
 to outliers.  
@@ -254,3 +380,11 @@ sample in this case might not be large enough.
 
 Fit a lasso model on the training data and report the test error. When
 the 1SE rule is applied, how many predictors are included in the model?
+
+### Model fitting
+
+``` r
+set.seed(2570)
+
+# Fit a lasso model using caret
+```

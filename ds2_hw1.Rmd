@@ -57,6 +57,7 @@ So we want to have a look and the potential correlation among predictors:
 ```{r}
 corrplot(
   cor(train_x), 
+  method = "circle",
   type = "full",
   tl.cex = .5, 
   tl.col = "darkblue")
@@ -89,12 +90,15 @@ Fit a linear model using least squares on the training data. Is there any potent
 ```{r}
 set.seed(2570)
 
-# Fit linear model using train() from caret
+# Specify resampling method
+ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 5)
+
+# Fit a linear model using caret
 lm_fit <- train(sale_price ~ .,
                 data = train_df,
                 method = "lm",
                 preProcess = c("center", "scale"),
-                trControl = trainControl(method = "cv", number = 10))
+                trControl = ctrl)
  
 # Extract coefficiencts
 round(lm_fit$finalModel$coefficients, 3) %>% 
@@ -115,7 +119,8 @@ RMSE(lm_predict, test_df$sale_price)
 ```
 
 **Potential Disadvantage:**  
-* As seen above, there are correlations among predictors, which may lead to: 1. higher variance / RMSE 2. less prediction accuracy 3. difficulty for interpretation  
+* The model contains too many predictors, which is hard for interpretation.    
+* As seen above, there are correlations among predictors, which may lead to: 1. higher variance and RMSE 2. less prediction accuracy 3. difficulty for interpretation  
 * Due to the nature of its modeling method, Least Squares is sensitive to outliers.  
 * Large data set is necessary in order to obtain reliable results. Our sample in this case might not be large enough.  
 
@@ -124,7 +129,11 @@ RMSE(lm_predict, test_df$sale_price)
 
 Fit a lasso model on the training data and report the test error. When the 1SE rule is applied, how many predictors are included in the model?
 
-```{r}
+### Model fitting
 
+```{r}
+set.seed(2570)
+
+# Fit a lasso model using caret
 ```
 
