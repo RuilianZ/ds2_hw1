@@ -49,6 +49,7 @@ train_x <- model.matrix(sale_price ~ ., train_df)[ ,-1]
 train_y <- train_df$sale_price
 test_x <- model.matrix(sale_price ~ ., test_df)[ , -1]
 test_y <- test_df$sale_price
+test_all <- model.matrix(sale_price ~ ., test_df)
 ```
 
 In linear regression, correlation among variables can cause large variance and make interpretation harder.  
@@ -87,7 +88,7 @@ Fit a linear model using least squares on the training data. Is there any potent
 
 ### Model fitting
 
-```{r}
+```{r, warning = FALSE}
 set.seed(2570)
 
 # Specify resampling method
@@ -134,6 +135,55 @@ Fit a lasso model on the training data and report the test error. When the 1SE r
 ```{r}
 set.seed(2570)
 
+# Specify resampling method for 1SE
+ctrl_1se = trainControl(method = "repeatedcv", number = 10, repeats = 5, selectionFunction = "oneSE")
+
 # Fit a lasso model using caret
+# The fitted model is a glemnet object, so we need to use matrix as input
+lasso_fit <- train(x = train_x, 
+                   y = train_y,
+                   method = "glmnet",
+                   preProcess = c("center", "scale"),
+                   tuneGrid = expand.grid(alpha = 1,
+                                          lambda = exp(seq(5, -1, length = 100))),
+                   trControl = ctrl_1se)
+
+# Plot RMSE against lambda
+plot(lasso_fit, xTrans = log)
+
+# Extract optimum lambda
+lasso_fit$bestTune
+
+# Extract coefficiencts
+as.matrix(round(coef(lasso_fit$finalModel, lasso_fit$bestTune$lambda), 3)) %>% 
+  knitr::kable()
+```
+
+* From the fitted lasso model, we can see that the opitmum lambda chosen is `r lasso_fit$bestTune$lambda`
+
+### Make prediction
+
+```{r}
+set.seed(2570)
+
+# Make prediction on test data
+lasso_predict <- predict(lasso_fit, newdata = test_all)
+
+# Calculate test RMSE
+RMSE(lasso_predict, test_df$sale_price)
+```
+
+* The test RMSE is `r round(RMSE(lasso_predict, test_df$sale_price), 2)`.  
+* When the 1SE rule is applied, there are `r data.frame(as.matrix(coef(lasso_fit$finalModel, lasso_fit$bestTune$lambda))) %>% filter(s1 != 0) %>% nrow()` predictors included in the model.  
+
+
+## Elastic Net
+
+Fit an elastic net model on the training data. Report the selected tuning parameters and the test error.
+
+### Model fitting
+
+```{r}
+
 ```
 
