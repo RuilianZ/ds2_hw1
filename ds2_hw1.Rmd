@@ -11,6 +11,7 @@ output: github_document
 library(tidyverse)
 library(caret)
 library(corrplot)
+library(leaps)
 
 
 ```
@@ -61,18 +62,69 @@ corrplot(
   tl.col = "darkblue")
 ```
 
-* From the plot above, 
+* From the plot above, we can see some positive correlations in the upright corner among some area-related predictors such as `gr_liv_area` and `second_flr_sf`, and also negative correlations among categorical variables such as `exter_qualTypical` and `kitchen_qualTypical`.  
+* To reduce the influence of correlation, we may want to reduce the number of predictors using best subset model selection.  
+
+```{r}
+lm_subsets <- regsubsets(sale_price ~ .,
+                         data = train_df,
+                         method = "exhaustive",
+                         nbest = 6)
+
+plot(lm_subsets, scale = "bic")
+
+# Look at actual numbers of predictors
+# summary(lm_subsets)
+```
+ 
+* The plot above gives us a sense of model selsction. Hoever, we will stick to using all the predictors in this assignment.
+
 
 ## Least Squares
 
 Fit a linear model using least squares on the training data. Is there any potential disadvantage of this model?
 
+### Model fitting
+
 ```{r}
 set.seed(2570)
 
-fit.lm <- train(sale_price ~ .,
+# Fit linear model using train() from caret
+lm_fit <- train(sale_price ~ .,
                 data = train_df,
                 method = "lm",
+                preProcess = c("center", "scale"),
                 trControl = trainControl(method = "cv", number = 10))
+ 
+# Extract coefficiencts
+round(lm_fit$finalModel$coefficients, 3) %>% 
+  knitr::kable()
+
+# Calculate mean training RMSE
+mean(lm_fit$resample$RMSE)
+```
+
+### Make prediction
+
+```{r}
+# Make prediction on test data
+lm_predict <- predict(lm_fit, newdata = test_df)
+
+# Calculate test RMSE
+RMSE(lm_predict, test_df$sale_price)
+```
+
+**Potential Disadvantage:**  
+* As seen above, there are correlations among predictors, which may lead to: 1. higher variance / RMSE 2. less prediction accuracy 3. difficulty for interpretation  
+* Due to the nature of its modeling method, Least Squares is sensitive to outliers.  
+* Large data set is necessary in order to obtain reliable results. Our sample in this case might not be large enough.  
+
+
+## Lasso
+
+Fit a lasso model on the training data and report the test error. When the 1SE rule is applied, how many predictors are included in the model?
+
+```{r}
+
 ```
 
