@@ -3,45 +3,18 @@ ds2_hw1
 Roxy Zhang (rz2570)
 2/12/2022
 
-## Setup
+## Setup and import data
 
 ``` r
 library(tidyverse)
-```
-
-    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
-
-    ## ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
-    ## ✓ tibble  3.1.6     ✓ dplyr   1.0.7
-    ## ✓ tidyr   1.1.4     ✓ stringr 1.4.0
-    ## ✓ readr   2.1.1     ✓ forcats 0.5.1
-
-    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-    ## x dplyr::filter() masks stats::filter()
-    ## x dplyr::lag()    masks stats::lag()
-
-``` r
 library(caret)
-```
-
-    ## Loading required package: lattice
-
-    ## 
-    ## Attaching package: 'caret'
-
-    ## The following object is masked from 'package:purrr':
-    ## 
-    ##     lift
-
-``` r
-set.seed(2)
 ```
 
 ``` r
 train_df = 
   read_csv("data/housing_training.csv") %>% 
   janitor::clean_names() %>% 
-  drop_na()
+  na.omit()
 ```
 
     ## Rows: 1440 Columns: 26
@@ -59,7 +32,7 @@ train_df =
 test_df = 
   read_csv("data/housing_test.csv") %>% 
   janitor::clean_names() %>% 
-  drop_na()
+  na.omit()
 ```
 
     ## Rows: 959 Columns: 26
@@ -109,3 +82,42 @@ table(sapply(test_df, class)) %>%
 
 Fit a linear model using least squares on the training data. Is there
 any potential disadvantage of this model?
+
+``` r
+set.seed(2570)
+
+fit.lm <- train(sale_price ~ .,
+                data = train_df,
+                method = "lm",
+                trControl = trainControl(method = "cv", number = 10))
+```
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading
+
+    ## Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient fit
+    ## may be misleading

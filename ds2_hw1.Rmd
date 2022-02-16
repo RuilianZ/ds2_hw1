@@ -11,19 +11,19 @@ output: github_document
 library(tidyverse)
 library(caret)
 
-set.seed(2)
+
 ```
 
 ```{r import data}
 train_df = 
   read_csv("data/housing_training.csv") %>% 
   janitor::clean_names() %>% 
-  drop_na()
+  na.omit()
 
 test_df = 
   read_csv("data/housing_test.csv") %>% 
   janitor::clean_names() %>% 
-  drop_na()
+  na.omit()
 
 dim(train_df)
 table(sapply(train_df, class)) %>% 
@@ -40,6 +40,11 @@ table(sapply(test_df, class)) %>%
 Fit a linear model using least squares on the training data. Is there any potential disadvantage of this model?
 
 ```{r}
+set.seed(2570)
 
+fit.lm <- train(sale_price ~ .,
+                data = train_df,
+                method = "lm",
+                trControl = trainControl(method = "cv", number = 10))
 ```
 
