@@ -214,16 +214,17 @@ RMSE(lm_predict, test_df$sale_price)
 
     ## [1] 21149.18
 
-**Potential Disadvantage:**  
-\* The model contains too many predictors, which is hard for
-interpretation.  
-\* As seen above, there are correlations among predictors, which may
-lead to: 1. higher variance and RMSE 2. less prediction accuracy 3.
-difficulty for interpretation  
-\* Due to the nature of its modeling method, Least Squares is sensitive
-to outliers.  
-\* Large data set is necessary in order to obtain reliable results. Our
-sample in this case might not be large enough.
+**Potential disadvantage**
+
+1.  The model contains too many predictors, which is hard for
+    interpretation.  
+2.  As seen above, there are correlations among predictors, which may
+    lead to: 1. higher variance and RMSE 2. less prediction accuracy 3.
+    difficulty for interpretation  
+3.  Due to the nature of its modeling method, Least Squares is sensitive
+    to outliers.  
+4.  Large data set is necessary in order to obtain reliable results. Our
+    sample in this case might not be large enough.
 
 ## Lasso
 
@@ -328,7 +329,9 @@ RMSE(lasso_predict, test_df$sale_price)
 
     ## [1] 20806.29
 
--   The test RMSE is 2.080629^{4}.  
+**Test error and number of predictors**
+
+-   The test RMSE is 2.0806292^{4}.  
 -   When the 1SE rule is applied, there are 37 predictors included in
     the model.
 
@@ -359,12 +362,32 @@ enet_fit$bestTune
     ## 899 0.3636364 139.6856
 
 ``` r
-plot(enet_fit, xTrans = log)
+# Plot RMSE against lambda
+plot(enet_fit, xTrans = log, xlim = c(4, 5))
 ```
 
 ![](ds2_hw1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
--   From the fitted elastic net model, we can see that the optimum
-    lambda chosen is 139.685566
+-   From the fitted elastic net model, we can see that the optimum alpha
+    chosen is 0.3636364, and the optimum lambda chosen is 139.685566.  
+-   Since the optimum alpha is much closer to 0 than 1, we can say that
+    the optimum elastic net model behaves closer to ridge than lasso.
 
 ### Make prediction
+
+``` r
+set.seed(2570)
+
+# Make prediction on test data
+enet_predict <- predict(enet_fit, newdata = test_all)
+
+# Calculate test RMSE
+RMSE(enet_predict, test_df$sale_price)
+```
+
+    ## [1] 20987.92
+
+**Selected tuning parameters and test error**
+
+-   The selected tuning parameter lambda is 139.685566.  
+-   The test RMSE is 2.0987919^{4}.

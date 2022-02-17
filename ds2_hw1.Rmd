@@ -119,11 +119,12 @@ lm_predict <- predict(lm_fit, newdata = test_df)
 RMSE(lm_predict, test_df$sale_price)
 ```
 
-**Potential Disadvantage:**  
-* The model contains too many predictors, which is hard for interpretation.    
-* As seen above, there are correlations among predictors, which may lead to: 1. higher variance and RMSE 2. less prediction accuracy 3. difficulty for interpretation  
-* Due to the nature of its modeling method, Least Squares is sensitive to outliers.  
-* Large data set is necessary in order to obtain reliable results. Our sample in this case might not be large enough.  
+**Potential disadvantage** 
+
+1. The model contains too many predictors, which is hard for interpretation.    
+2. As seen above, there are correlations among predictors, which may lead to: 1. higher variance and RMSE 2. less prediction accuracy 3. difficulty for interpretation  
+3. Due to the nature of its modeling method, Least Squares is sensitive to outliers.  
+4. Large data set is necessary in order to obtain reliable results. Our sample in this case might not be large enough.  
 
 
 ## Lasso
@@ -173,7 +174,9 @@ lasso_predict <- predict(lasso_fit, newdata = test_all)
 RMSE(lasso_predict, test_df$sale_price)
 ```
 
-* The test RMSE is `r round(RMSE(lasso_predict, test_df$sale_price), 2)`.  
+**Test error and number of predictors**
+
+* The test RMSE is `r RMSE(lasso_predict, test_df$sale_price)`.  
 * When the 1SE rule is applied, there are `r data.frame(as.matrix(coef(lasso_fit$finalModel, lasso_fit$bestTune$lambda))) %>% filter(s1 != 0) %>% nrow()` predictors included in the model.  
 
 
@@ -198,14 +201,26 @@ enet_fit <- train(x = train_x,
 # Extract optimum lambda
 enet_fit$bestTune
 
-plot(enet_fit, xTrans = log)
+# Plot RMSE against lambda
+plot(enet_fit, xTrans = log, xlim = c(4, 5))
 ```
 
-* From the fitted elastic net model, we can see that the optimum lambda chosen is `r enet_fit$bestTune$lambda`
+* From the fitted elastic net model, we can see that the optimum alpha chosen is `r enet_fit$bestTune$alpha`, and the optimum lambda chosen is `r enet_fit$bestTune$lambda`.  
+* Since the optimum alpha is much closer to 0 than 1, we can say that the optimum elastic net model behaves closer to ridge than lasso.
 
 ### Make prediction
 
 ```{r}
+set.seed(2570)
 
+# Make prediction on test data
+enet_predict <- predict(enet_fit, newdata = test_all)
+
+# Calculate test RMSE
+RMSE(enet_predict, test_df$sale_price)
 ```
 
+**Selected tuning parameters and test error**
+
+* The selected tuning parameter lambda is `r enet_fit$bestTune$lambda`.  
+* The test RMSE is `r RMSE(enet_predict, test_df$sale_price)`.
