@@ -354,6 +354,13 @@ enet_fit <- train(x = train_x,
                                          lambda = exp(seq(5, -1, length = 100))),
                   trControl = ctrl)
 
+# Plot RMSE against lambda
+plot(enet_fit, xTrans = log, xlim = c(4, 5))
+```
+
+![](ds2_hw1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
 # Extract optimum lambda
 enet_fit$bestTune
 ```
@@ -362,11 +369,53 @@ enet_fit$bestTune
     ## 899 0.3636364 139.6856
 
 ``` r
-# Plot RMSE against lambda
-plot(enet_fit, xTrans = log, xlim = c(4, 5))
+# Extract coefficiencts
+as.matrix(round(coef(enet_fit$finalModel, enet_fit$bestTune$lambda), 3)) %>% 
+  knitr::kable()
 ```
 
-![](ds2_hw1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+|                            |         s1 |
+|:---------------------------|-----------:|
+| (Intercept)                | 177568.502 |
+| gr_liv_area                |  29121.860 |
+| first_flr_sf               |   2240.674 |
+| second_flr_sf              |   2161.939 |
+| total_bsmt_sf              |  14590.689 |
+| low_qual_fin_sf            |  -1594.396 |
+| wood_deck_sf               |   1581.785 |
+| open_porch_sf              |   1004.932 |
+| bsmt_unf_sf                |  -8658.963 |
+| mas_vnr_area               |   1847.366 |
+| garage_cars                |   2960.055 |
+| garage_area                |   1663.261 |
+| year_built                 |   9471.867 |
+| tot_rms_abv_grd            |  -5514.960 |
+| full_bath                  |  -2081.046 |
+| overall_qualAverage        |  -2250.286 |
+| overall_qualBelow_Average  |  -3251.203 |
+| overall_qualExcellent      |  12665.986 |
+| overall_qualFair           |  -1346.308 |
+| overall_qualGood           |   4940.527 |
+| overall_qualVery_Excellent |  12801.083 |
+| overall_qualVery_Good      |  11576.413 |
+| kitchen_qualFair           |  -3189.219 |
+| kitchen_qualGood           |  -8410.691 |
+| kitchen_qualTypical        | -12621.996 |
+| fireplaces                 |   6964.690 |
+| fireplace_quFair           |  -1290.917 |
+| fireplace_quGood           |      0.000 |
+| fireplace_quNo_Fireplace   |    829.202 |
+| fireplace_quPoor           |   -747.108 |
+| fireplace_quTypical        |  -2881.483 |
+| exter_qualFair             |  -3428.027 |
+| exter_qualGood             |  -7238.921 |
+| exter_qualTypical          |  -9576.761 |
+| lot_frontage               |   3251.324 |
+| lot_area                   |   5015.829 |
+| longitude                  |   -888.993 |
+| latitude                   |   1022.435 |
+| misc_val                   |    499.481 |
+| year_sold                  |   -738.721 |
 
 -   From the fitted elastic net model, we can see that the optimum alpha
     chosen is 0.3636364, and the optimum lambda chosen is 139.685566.  
@@ -391,3 +440,107 @@ RMSE(enet_predict, test_df$sale_price)
 
 -   The selected tuning parameter lambda is 139.685566.  
 -   The test RMSE is 2.0987919^{4}.
+
+## Partial Least Squares
+
+Fit a partial least squares model on the training data and report the
+test error. How many components are included in your model?
+
+### Model fitting
+
+``` r
+set.seed(2570)
+
+# Fit a partial least squares model
+pls_fit <- train(x = train_x,
+                  y = train_y,
+                  method = "pls",
+                  preProcess = c("center", "scale"),
+                  tuneGrid = data.frame(ncomp = 1:23),
+                  trControl = ctrl)
+
+# Plot RMSE against number of components
+ggplot(pls_fit, highlight = TRUE) +
+  theme_bw()
+```
+
+![](ds2_hw1_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+# Extract best tuning parameter
+pls_fit$bestTune
+```
+
+    ##    ncomp
+    ## 12    12
+
+``` r
+# Extract coefficiencts
+as.matrix(round(coef(pls_fit$finalModel, pls_fit$bestTune$ncomp), 3)) %>% 
+  knitr::kable()
+```
+
+|            |
+|-----------:|
+|  18756.885 |
+|  11050.665 |
+|  11959.731 |
+|  14259.350 |
+|   -615.820 |
+|   1654.787 |
+|   1147.528 |
+|  -8636.788 |
+|   1718.356 |
+|   3539.989 |
+|   1118.947 |
+|   9634.874 |
+|  -6198.153 |
+|  -2442.389 |
+|  -2498.875 |
+|  -3475.021 |
+|  12344.652 |
+|  -1460.565 |
+|   4817.446 |
+|  12624.889 |
+|  11487.675 |
+|  -3416.408 |
+|  -9420.464 |
+| -13528.390 |
+|   7648.590 |
+|  -1436.278 |
+|    -70.360 |
+|   1601.096 |
+|   -806.935 |
+|  -3043.585 |
+|  -3315.917 |
+|  -7309.971 |
+|  -9510.009 |
+|   3320.003 |
+|   4977.450 |
+|   -982.240 |
+|   1139.652 |
+|    523.602 |
+|   -725.608 |
+
+-   From the fitted partial least squares model, we can see that the
+    number of components is 12.  
+-   The highlighted dot in the plot also shows the same result.
+
+### Make prediction
+
+``` r
+set.seed(2570)
+
+# Make prediction on test data
+pls_predict <- predict(pls_fit, newdata = test_all)
+
+# Calculate test RMSE
+RMSE(pls_predict, test_df$sale_price)
+```
+
+    ## [1] 21204.31
+
+**Number of components and test error**
+
+-   The number of components is 12,
+-   The test RMSE is 2.1204309^{4}.
