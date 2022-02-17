@@ -1,5 +1,5 @@
 ---
-title: "Home Work 2 for Data Science II"
+title: "Homework 1 for Data Science II"
 author: "Roxy Zhang (rz2570)"
 date: "2/12/2022"
 output: github_document
@@ -91,7 +91,6 @@ set.seed(2570)
 
 # Specify resampling method
 ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 5, selectionFunction = "oneSE")
-# trainControl(method = "repeatedcv", number = 10, repeats = 5)
 
 # Fit a linear model using caret
 lm_fit <- train(sale_price ~ .,
@@ -136,7 +135,7 @@ Fit a lasso model on the training data and report the test error. When the 1SE r
 set.seed(2570)
 
 # Specify resampling method for 1SE
-# ctrl_1se = trainControl(method = "repeatedcv", number = 10, repeats = 5, selectionFunction = "oneSE")
+ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 5, selectionFunction = "oneSE")
 
 # Fit a lasso model using caret
 # The fitted model is a glemnet object, so we need to use matrix as input
@@ -285,5 +284,10 @@ resamp<- resamples(list(ls = lm_fit,
                         lasso = lasso_fit,
                         enet = enet_fit,
                         pls = pls_fit))
+
+summary(resamp)
+
+bwplot(resamp, metric = "RMSE")
 ```
 
+* Based on the plot above, we would likely to choose the **least squares** model, since it has the lowest RMSE compared to other models. We have to admit that sometimes "Simplicity is the ultimate sophistication" :)

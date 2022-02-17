@@ -134,7 +134,6 @@ set.seed(2570)
 
 # Specify resampling method
 ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 5, selectionFunction = "oneSE")
-# trainControl(method = "repeatedcv", number = 10, repeats = 5)
 
 # Fit a linear model using caret
 lm_fit <- train(sale_price ~ .,
@@ -238,7 +237,7 @@ the 1SE rule is applied, how many predictors are included in the model?
 set.seed(2570)
 
 # Specify resampling method for 1SE
-# ctrl_1se = trainControl(method = "repeatedcv", number = 10, repeats = 5, selectionFunction = "oneSE")
+ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 5, selectionFunction = "oneSE")
 
 # Fit a lasso model using caret
 # The fitted model is a glemnet object, so we need to use matrix as input
@@ -508,4 +507,45 @@ resamp<- resamples(list(ls = lm_fit,
                         lasso = lasso_fit,
                         enet = enet_fit,
                         pls = pls_fit))
+
+summary(resamp)
 ```
+
+    ## 
+    ## Call:
+    ## summary.resamples(object = resamp)
+    ## 
+    ## Models: ls, lasso, enet, pls 
+    ## Number of resamples: 50 
+    ## 
+    ## MAE 
+    ##           Min.  1st Qu.   Median     Mean  3rd Qu.     Max. NA's
+    ## ls    14090.94 15801.89 16831.57 16728.33 17773.66 19634.15    0
+    ## lasso 13989.94 15765.16 16498.30 16634.89 17612.42 19502.48    0
+    ## enet  14199.71 15876.30 16634.83 16601.73 17514.04 19363.46    0
+    ## pls   13952.50 15756.05 16675.72 16735.32 17691.43 20059.04    0
+    ## 
+    ## RMSE 
+    ##           Min.  1st Qu.   Median     Mean  3rd Qu.     Max. NA's
+    ## ls    18501.59 21261.93 23069.48 23004.66 24251.76 27392.47    0
+    ## lasso 18678.33 21330.67 23153.88 23002.08 24444.28 27830.31    0
+    ## enet  18804.71 21596.55 23325.40 23220.23 24391.03 29027.75    0
+    ## pls   18598.13 21655.64 23289.50 23265.63 24452.83 28249.60    0
+    ## 
+    ## Rsquared 
+    ##            Min.   1st Qu.    Median      Mean   3rd Qu.      Max. NA's
+    ## ls    0.8508070 0.8900840 0.9057787 0.9029181 0.9156418 0.9332064    0
+    ## lasso 0.8547969 0.8900067 0.9051182 0.9028911 0.9160773 0.9340001    0
+    ## enet  0.8575060 0.8911946 0.9020662 0.9015226 0.9121814 0.9300673    0
+    ## pls   0.8603612 0.8891645 0.9030954 0.9008821 0.9139222 0.9327590    0
+
+``` r
+bwplot(resamp, metric = "RMSE")
+```
+
+![](ds2_hw1_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+-   Based on the plot above, we would likely to choose the **least
+    squares** model, since it has the lowest RMSE compared to other
+    models. We have to admit that sometimes “Simplicity is the ultimate
+    sophistication” :)
