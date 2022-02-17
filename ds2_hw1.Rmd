@@ -12,8 +12,6 @@ library(tidyverse)
 library(caret)
 library(corrplot)
 library(leaps)
-
-
 ```
 
 ```{r, message = FALSE}
@@ -92,7 +90,8 @@ Fit a linear model using least squares on the training data. Is there any potent
 set.seed(2570)
 
 # Specify resampling method
-ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 5)
+ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 5, selectionFunction = "oneSE")
+# trainControl(method = "repeatedcv", number = 10, repeats = 5)
 
 # Fit a linear model using caret
 lm_fit <- train(sale_price ~ .,
@@ -137,7 +136,7 @@ Fit a lasso model on the training data and report the test error. When the 1SE r
 set.seed(2570)
 
 # Specify resampling method for 1SE
-ctrl_1se = trainControl(method = "repeatedcv", number = 10, repeats = 5, selectionFunction = "oneSE")
+# ctrl_1se = trainControl(method = "repeatedcv", number = 10, repeats = 5, selectionFunction = "oneSE")
 
 # Fit a lasso model using caret
 # The fitted model is a glemnet object, so we need to use matrix as input
@@ -147,7 +146,7 @@ lasso_fit <- train(x = train_x,
                    preProcess = c("center", "scale"),
                    tuneGrid = expand.grid(alpha = 1,
                                           lambda = exp(seq(5, -1, length = 100))),
-                   trControl = ctrl_1se)
+                   trControl = ctrl)
 
 # Plot RMSE against lambda
 plot(lasso_fit, xTrans = log)
@@ -253,10 +252,6 @@ ggplot(pls_fit, highlight = TRUE) +
 
 # Extract best tuning parameter
 pls_fit$bestTune
-
-# Extract coefficiencts
-as.matrix(round(coef(pls_fit$finalModel, pls_fit$bestTune$ncomp), 3)) %>% 
-  knitr::kable()
 ```
 
 * From the fitted partial least squares model, we can see that the number of components is `r pls_fit$bestTune$ncomp`.  
@@ -278,3 +273,17 @@ RMSE(pls_predict, test_df$sale_price)
 
 * The number of components is `r pls_fit$bestTune$ncomp`, 
 * The test RMSE is `r RMSE(pls_predict, test_df$sale_price)`.
+
+
+## Model selection
+
+Which model will you choose for predicting the response? Why?
+
+```{r}
+# Compare the models based on resampling results
+resamp<- resamples(list(ls = lm_fit,
+                        lasso = lasso_fit,
+                        enet = enet_fit,
+                        pls = pls_fit))
+```
+

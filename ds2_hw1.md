@@ -133,7 +133,8 @@ any potential disadvantage of this model?
 set.seed(2570)
 
 # Specify resampling method
-ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 5)
+ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 5, selectionFunction = "oneSE")
+# trainControl(method = "repeatedcv", number = 10, repeats = 5)
 
 # Fit a linear model using caret
 lm_fit <- train(sale_price ~ .,
@@ -237,7 +238,7 @@ the 1SE rule is applied, how many predictors are included in the model?
 set.seed(2570)
 
 # Specify resampling method for 1SE
-ctrl_1se = trainControl(method = "repeatedcv", number = 10, repeats = 5, selectionFunction = "oneSE")
+# ctrl_1se = trainControl(method = "repeatedcv", number = 10, repeats = 5, selectionFunction = "oneSE")
 
 # Fit a lasso model using caret
 # The fitted model is a glemnet object, so we need to use matrix as input
@@ -247,7 +248,7 @@ lasso_fit <- train(x = train_x,
                    preProcess = c("center", "scale"),
                    tuneGrid = expand.grid(alpha = 1,
                                           lambda = exp(seq(5, -1, length = 100))),
-                   trControl = ctrl_1se)
+                   trControl = ctrl)
 
 # Plot RMSE against lambda
 plot(lasso_fit, xTrans = log)
@@ -365,8 +366,8 @@ plot(enet_fit, xTrans = log, xlim = c(4, 5))
 enet_fit$bestTune
 ```
 
-    ##         alpha   lambda
-    ## 899 0.3636364 139.6856
+    ##     alpha   lambda
+    ## 100     0 148.4132
 
 ``` r
 # Extract coefficiencts
@@ -377,48 +378,48 @@ as.matrix(round(coef(enet_fit$finalModel, enet_fit$bestTune$lambda), 3)) %>%
 |                            |         s1 |
 |:---------------------------|-----------:|
 | (Intercept)                | 177568.502 |
-| gr_liv_area                |  29121.860 |
-| first_flr_sf               |   2240.674 |
-| second_flr_sf              |   2161.939 |
-| total_bsmt_sf              |  14590.689 |
-| low_qual_fin_sf            |  -1594.396 |
-| wood_deck_sf               |   1581.785 |
-| open_porch_sf              |   1004.932 |
-| bsmt_unf_sf                |  -8658.963 |
-| mas_vnr_area               |   1847.366 |
-| garage_cars                |   2960.055 |
-| garage_area                |   1663.261 |
-| year_built                 |   9471.867 |
-| tot_rms_abv_grd            |  -5514.960 |
-| full_bath                  |  -2081.046 |
-| overall_qualAverage        |  -2250.286 |
-| overall_qualBelow_Average  |  -3251.203 |
-| overall_qualExcellent      |  12665.986 |
-| overall_qualFair           |  -1346.308 |
-| overall_qualGood           |   4940.527 |
-| overall_qualVery_Excellent |  12801.083 |
-| overall_qualVery_Good      |  11576.413 |
-| kitchen_qualFair           |  -3189.219 |
-| kitchen_qualGood           |  -8410.691 |
-| kitchen_qualTypical        | -12621.996 |
-| fireplaces                 |   6964.690 |
-| fireplace_quFair           |  -1290.917 |
-| fireplace_quGood           |      0.000 |
-| fireplace_quNo_Fireplace   |    829.202 |
-| fireplace_quPoor           |   -747.108 |
-| fireplace_quTypical        |  -2881.483 |
-| exter_qualFair             |  -3428.027 |
-| exter_qualGood             |  -7238.921 |
-| exter_qualTypical          |  -9576.761 |
-| lot_frontage               |   3251.324 |
-| lot_area                   |   5015.829 |
-| longitude                  |   -888.993 |
-| latitude                   |   1022.435 |
-| misc_val                   |    499.481 |
-| year_sold                  |   -738.721 |
+| gr_liv_area                |  15707.771 |
+| first_flr_sf               |   9658.607 |
+| second_flr_sf              |   9329.125 |
+| total_bsmt_sf              |  13230.846 |
+| low_qual_fin_sf            |   -792.002 |
+| wood_deck_sf               |   2116.510 |
+| open_porch_sf              |   1498.755 |
+| bsmt_unf_sf                |  -7802.190 |
+| mas_vnr_area               |   2966.651 |
+| garage_cars                |   2772.039 |
+| garage_area                |   2783.575 |
+| year_built                 |   8341.074 |
+| tot_rms_abv_grd            |  -2725.188 |
+| full_bath                  |   -818.023 |
+| overall_qualAverage        |  -2732.752 |
+| overall_qualBelow_Average  |  -3321.670 |
+| overall_qualExcellent      |  12761.411 |
+| overall_qualFair           |  -1745.742 |
+| overall_qualGood           |   3982.596 |
+| overall_qualVery_Excellent |  13225.402 |
+| overall_qualVery_Good      |  10347.427 |
+| kitchen_qualFair           |  -2130.236 |
+| kitchen_qualGood           |  -4601.519 |
+| kitchen_qualTypical        |  -8818.523 |
+| fireplaces                 |   6449.791 |
+| fireplace_quFair           |  -1273.834 |
+| fireplace_quGood           |    701.596 |
+| fireplace_quNo_Fireplace   |    187.980 |
+| fireplace_quPoor           |   -742.406 |
+| fireplace_quTypical        |  -2301.788 |
+| exter_qualFair             |  -2626.404 |
+| exter_qualGood             |  -3120.914 |
+| exter_qualTypical          |  -6356.012 |
+| lot_frontage               |   3083.152 |
+| lot_area                   |   4860.933 |
+| longitude                  |  -1176.072 |
+| latitude                   |   1142.875 |
+| misc_val                   |    492.528 |
+| year_sold                  |   -604.933 |
 
 -   From the fitted elastic net model, we can see that the optimum alpha
-    chosen is 0.3636364, and the optimum lambda chosen is 139.685566.  
+    chosen is 0, and the optimum lambda chosen is 148.4131591.  
 -   Since the optimum alpha is much closer to 0 than 1, we can say that
     the optimum elastic net model behaves closer to ridge than lasso.
 
@@ -434,12 +435,12 @@ enet_predict <- predict(enet_fit, newdata = test_all)
 RMSE(enet_predict, test_df$sale_price)
 ```
 
-    ## [1] 20987.92
+    ## [1] 20648.43
 
 **Selected tuning parameters and test error**
 
--   The selected tuning parameter lambda is 139.685566.  
--   The test RMSE is 2.0987919^{4}.
+-   The selected tuning parameter lambda is 148.4131591.  
+-   The test RMSE is 2.0648431^{4}.
 
 ## Partial Least Squares
 
@@ -471,59 +472,11 @@ ggplot(pls_fit, highlight = TRUE) +
 pls_fit$bestTune
 ```
 
-    ##    ncomp
-    ## 12    12
-
-``` r
-# Extract coefficiencts
-as.matrix(round(coef(pls_fit$finalModel, pls_fit$bestTune$ncomp), 3)) %>% 
-  knitr::kable()
-```
-
-|            |
-|-----------:|
-|  18756.885 |
-|  11050.665 |
-|  11959.731 |
-|  14259.350 |
-|   -615.820 |
-|   1654.787 |
-|   1147.528 |
-|  -8636.788 |
-|   1718.356 |
-|   3539.989 |
-|   1118.947 |
-|   9634.874 |
-|  -6198.153 |
-|  -2442.389 |
-|  -2498.875 |
-|  -3475.021 |
-|  12344.652 |
-|  -1460.565 |
-|   4817.446 |
-|  12624.889 |
-|  11487.675 |
-|  -3416.408 |
-|  -9420.464 |
-| -13528.390 |
-|   7648.590 |
-|  -1436.278 |
-|    -70.360 |
-|   1601.096 |
-|   -806.935 |
-|  -3043.585 |
-|  -3315.917 |
-|  -7309.971 |
-|  -9510.009 |
-|   3320.003 |
-|   4977.450 |
-|   -982.240 |
-|   1139.652 |
-|    523.602 |
-|   -725.608 |
+    ##   ncomp
+    ## 5     5
 
 -   From the fitted partial least squares model, we can see that the
-    number of components is 12.  
+    number of components is 5.  
 -   The highlighted dot in the plot also shows the same result.
 
 ### Make prediction
@@ -538,9 +491,21 @@ pls_predict <- predict(pls_fit, newdata = test_all)
 RMSE(pls_predict, test_df$sale_price)
 ```
 
-    ## [1] 21204.31
+    ## [1] 20829.01
 
 **Number of components and test error**
 
--   The number of components is 12,
--   The test RMSE is 2.1204309^{4}.
+-   The number of components is 5,
+-   The test RMSE is 2.0829006^{4}.
+
+## Model selection
+
+Which model will you choose for predicting the response? Why?
+
+``` r
+# Compare the models based on resampling results
+resamp<- resamples(list(ls = lm_fit,
+                        lasso = lasso_fit,
+                        enet = enet_fit,
+                        pls = pls_fit))
+```
