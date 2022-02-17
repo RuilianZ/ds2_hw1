@@ -311,7 +311,7 @@ as.matrix(round(coef(lasso_fit$finalModel, lasso_fit$bestTune$lambda), 3)) %>%
 | misc_val                   |    419.839 |
 | year_sold                  |   -590.579 |
 
--   From the fitted lasso model, we can see that the opitmum lambda
+-   From the fitted lasso model, we can see that the optimum lambda
     chosen is 148.4131591
 
 ### Make prediction
@@ -328,7 +328,7 @@ RMSE(lasso_predict, test_df$sale_price)
 
     ## [1] 20806.29
 
--   The test RMSE is 2.0806292^{4}.  
+-   The test RMSE is 2.080629^{4}.  
 -   When the 1SE rule is applied, there are 37 predictors included in
     the model.
 
@@ -338,3 +338,33 @@ Fit an elastic net model on the training data. Report the selected
 tuning parameters and the test error.
 
 ### Model fitting
+
+``` r
+set.seed(2570)
+
+# Fit a elastic net model
+enet_fit <- train(x = train_x,
+                  y = train_y,
+                  method = "glmnet",
+                  preProcess = c("center", "scale"),
+                  tuneGrid = expand.grid(alpha = seq(0, 1, length = 23),
+                                         lambda = exp(seq(5, -1, length = 100))),
+                  trControl = ctrl)
+
+# Extract optimum lambda
+enet_fit$bestTune
+```
+
+    ##         alpha   lambda
+    ## 899 0.3636364 139.6856
+
+``` r
+plot(enet_fit, xTrans = log)
+```
+
+![](ds2_hw1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+-   From the fitted elastic net model, we can see that the optimum
+    lambda chosen is 139.685566
+
+### Make prediction

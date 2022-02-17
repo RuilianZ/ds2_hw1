@@ -159,7 +159,7 @@ as.matrix(round(coef(lasso_fit$finalModel, lasso_fit$bestTune$lambda), 3)) %>%
   knitr::kable()
 ```
 
-* From the fitted lasso model, we can see that the opitmum lambda chosen is `r lasso_fit$bestTune$lambda`
+* From the fitted lasso model, we can see that the optimum lambda chosen is `r lasso_fit$bestTune$lambda`
 
 ### Make prediction
 
@@ -182,6 +182,28 @@ RMSE(lasso_predict, test_df$sale_price)
 Fit an elastic net model on the training data. Report the selected tuning parameters and the test error.
 
 ### Model fitting
+
+```{r}
+set.seed(2570)
+
+# Fit a elastic net model
+enet_fit <- train(x = train_x,
+                  y = train_y,
+                  method = "glmnet",
+                  preProcess = c("center", "scale"),
+                  tuneGrid = expand.grid(alpha = seq(0, 1, length = 23),
+                                         lambda = exp(seq(5, -1, length = 100))),
+                  trControl = ctrl)
+
+# Extract optimum lambda
+enet_fit$bestTune
+
+plot(enet_fit, xTrans = log)
+```
+
+* From the fitted elastic net model, we can see that the optimum lambda chosen is `r enet_fit$bestTune$lambda`
+
+### Make prediction
 
 ```{r}
 
