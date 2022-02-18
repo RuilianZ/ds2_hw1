@@ -2,7 +2,7 @@
 title: "Homework 1 for Data Science II"
 author: "Roxy Zhang (rz2570)"
 date: "2/12/2022"
-output: github_document
+output: pdf_document
 ---
 
 ### Setup and import data
@@ -90,7 +90,7 @@ Fit a linear model using least squares on the training data. Is there any potent
 set.seed(2570)
 
 # Specify resampling method
-ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 5, selectionFunction = "oneSE")
+ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 5)
 
 # Fit a linear model using caret
 lm_fit <- train(sale_price ~ .,
@@ -135,7 +135,7 @@ Fit a lasso model on the training data and report the test error. When the 1SE r
 set.seed(2570)
 
 # Specify resampling method for 1SE
-ctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 5, selectionFunction = "oneSE")
+ctrl_1se <- trainControl(method = "repeatedcv", number = 10, repeats = 5, selectionFunction = "oneSE")
 
 # Fit a lasso model using caret
 # The fitted model is a glemnet object, so we need to use matrix as input
@@ -145,7 +145,7 @@ lasso_fit <- train(x = train_x,
                    preProcess = c("center", "scale"),
                    tuneGrid = expand.grid(alpha = 1,
                                           lambda = exp(seq(5, -1, length = 100))),
-                   trControl = ctrl)
+                   trControl = ctrl_1se)
 
 # Plot RMSE against lambda
 plot(lasso_fit, xTrans = log)
@@ -193,11 +193,11 @@ enet_fit <- train(x = train_x,
                   method = "glmnet",
                   preProcess = c("center", "scale"),
                   tuneGrid = expand.grid(alpha = seq(0, 1, length = 23),
-                                         lambda = exp(seq(5, -1, length = 100))),
+                                         lambda = exp(seq(-2, 6, length = 50))),
                   trControl = ctrl)
 
 # Plot RMSE against lambda
-plot(enet_fit, xTrans = log, xlim = c(4, 5))
+plot(enet_fit, xTrans = log, xlim = c(-2, 6))
 
 # Extract optimum lambda
 enet_fit$bestTune
@@ -288,6 +288,8 @@ resamp<- resamples(list(ls = lm_fit,
 summary(resamp)
 
 bwplot(resamp, metric = "RMSE")
+
+parallelplot(resamp, metric = "RMSE")
 ```
 
-* Based on the plot above, we would likely to choose the **least squares** model, since it has the lowest RMSE compared to other models. We have to admit that sometimes "Simplicity is the ultimate sophistication" :)
+* Based on the plots above, we would likely to choose the **least squares** model, since it has the lowest RMSE compared to other models (however, the difference of average RMSE and the range of RMSE among groups is relatively small). We have to admit that sometimes "Simplicity is the ultimate sophistication" :)

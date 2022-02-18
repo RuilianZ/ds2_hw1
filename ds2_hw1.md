@@ -1,4 +1,4 @@
-Home Work 2 for Data Science II
+Homework 1 for Data Science II
 ================
 Roxy Zhang (rz2570)
 2/12/2022
@@ -355,7 +355,7 @@ enet_fit <- train(x = train_x,
                   trControl = ctrl)
 
 # Plot RMSE against lambda
-plot(enet_fit, xTrans = log, xlim = c(4, 5))
+plot(enet_fit, xTrans = log, xlim = c(4, 6))
 ```
 
 ![](ds2_hw1_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
