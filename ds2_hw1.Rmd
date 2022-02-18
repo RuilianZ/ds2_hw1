@@ -1,6 +1,6 @@
 ---
 title: "Homework 1 for Data Science II"
-author: "Roxy Zhang (rz2570)"
+author: "Ruilian Zhang (rz2570)"
 date: "2/12/2022"
 output: pdf_document
 ---
@@ -34,7 +34,7 @@ table(sapply(test_df[ , -1], class)) %>%
   knitr::kable()
 ```
 
-* We want to predict outcome variable `sale_price` by selecting predictors from `r ncol(train_df)` variables, among which there are 4 categorical variables and 21 continuous variables.   
+* We want to predict outcome variable `sale_price` by selecting predictors from `r ncol(train_df) - 1` variables, among which there are 4 categorical variables and 21 continuous variables.   
 * There are `r nrow(train_df)` data in training data and `r nrow(test_df)` in test data.  
 
 
@@ -158,7 +158,7 @@ as.matrix(round(coef(lasso_fit$finalModel, lasso_fit$bestTune$lambda), 3)) %>%
   knitr::kable()
 ```
 
-* From the fitted lasso model, we can see that the optimum lambda chosen is `r lasso_fit$bestTune$lambda`
+* From the fitted lasso model, we can see that the optimum lambda chosen is `r round(lasso_fit$bestTune$lambda, 2)`
 
 ### Make prediction
 
@@ -174,7 +174,7 @@ RMSE(lasso_predict, test_df$sale_price)
 
 **Test error and number of predictors**
 
-* The test RMSE is `r RMSE(lasso_predict, test_df$sale_price)`.  
+* The test RMSE is `r round(RMSE(lasso_predict, test_df$sale_price), -2)`.  
 * When the 1SE rule is applied, there are `r data.frame(as.matrix(coef(lasso_fit$finalModel, lasso_fit$bestTune$lambda))) %>% filter(s1 != 0) %>% nrow()` predictors included in the model.  
 
 
@@ -193,11 +193,15 @@ enet_fit <- train(x = train_x,
                   method = "glmnet",
                   preProcess = c("center", "scale"),
                   tuneGrid = expand.grid(alpha = seq(0, 1, length = 23),
-                                         lambda = exp(seq(-2, 6, length = 50))),
+                                         lambda = exp(seq(-2, 7, length = 50))),
                   trControl = ctrl)
 
 # Plot RMSE against lambda
-plot(enet_fit, xTrans = log, xlim = c(-2, 6))
+myCol = rainbow(25)
+myPar = list(superpose.symbol = list(col = myCol),
+             superpose.line = list(col = myCol))
+plot(enet_fit, par.settings = myPar, xTrans = log)
+
 
 # Extract optimum lambda
 enet_fit$bestTune
@@ -207,8 +211,7 @@ as.matrix(round(coef(enet_fit$finalModel, enet_fit$bestTune$lambda), 3)) %>%
   knitr::kable()
 ```
 
-* From the fitted elastic net model, we can see that the optimum alpha chosen is `r enet_fit$bestTune$alpha`, and the optimum lambda chosen is `r enet_fit$bestTune$lambda`.  
-* Since the optimum alpha is much closer to 0 than 1, we can say that the optimum elastic net model behaves closer to ridge than lasso.
+* From the fitted elastic net model, we can see that the optimum alpha chosen is `r round(enet_fit$bestTune$alpha, 2)`, and the optimum lambda chosen is `r round(enet_fit$bestTune$lambda, 2)`.  
 
 ### Make prediction
 
@@ -224,8 +227,8 @@ RMSE(enet_predict, test_df$sale_price)
 
 **Selected tuning parameters and test error**
 
-* The selected tuning parameter lambda is `r enet_fit$bestTune$lambda`.  
-* The test RMSE is `r RMSE(enet_predict, test_df$sale_price)`.
+* The selected tuning parameter lambda is `r round(enet_fit$bestTune$lambda, 2)`.  
+* The test RMSE is `r round(RMSE(enet_predict, test_df$sale_price), -2)`.
 
 
 ## Partial Least Squares
@@ -271,7 +274,7 @@ RMSE(pls_predict, test_df$sale_price)
 **Number of components and test error**
 
 * The number of components is `r pls_fit$bestTune$ncomp`, 
-* The test RMSE is `r RMSE(pls_predict, test_df$sale_price)`.
+* The test RMSE is `r round(RMSE(pls_predict, test_df$sale_price), -2)`.
 
 
 ## Model selection
@@ -292,4 +295,4 @@ bwplot(resamp, metric = "RMSE")
 parallelplot(resamp, metric = "RMSE")
 ```
 
-* Based on the plots above, we would likely to choose the **least squares** model, since it has the lowest RMSE compared to other models (however, the difference of average RMSE and the range of RMSE among groups is relatively small). We have to admit that sometimes "Simplicity is the ultimate sophistication" :)
+* Based on the summary and plots above, we would likely to choose the **least squares** model, since it has the lowest RMSE compared to other models. We have to admit that sometimes "Simplicity is the ultimate sophistication" :)
