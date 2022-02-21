@@ -193,7 +193,7 @@ enet_fit <- train(x = train_x,
                   method = "glmnet",
                   preProcess = c("center", "scale"),
                   tuneGrid = expand.grid(alpha = seq(0, 1, length = 23),
-                                         lambda = exp(seq(-2, 7, length = 50))),
+                                         lambda = exp(seq(-2, 7, length = 100))),
                   trControl = ctrl)
 
 # Plot RMSE against lambda
